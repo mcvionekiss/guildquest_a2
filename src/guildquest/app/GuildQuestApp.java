@@ -1,5 +1,12 @@
 package guildquest.app;
 
+import guildquest.app.menu.MenuAction;
+import guildquest.app.menu.CreateCampaignAction;
+import guildquest.app.menu.ManageCampaignAction;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import guildquest.enums.*;
 import guildquest.model.*;
 
@@ -11,6 +18,11 @@ public class GuildQuestApp {
     private final Scanner in = new Scanner(System.in);
     private final GuildQuest system = new GuildQuest();
     private User currentUser;
+    private Map<String, MenuAction> campaignActions;
+
+    public GuildQuestApp() {
+        initCampaignActions();
+    }
 
     public void start() {
         seedData();
@@ -192,26 +204,41 @@ public class GuildQuestApp {
     // -------- Campaigns --------
     private void campaignsMenu() {
         while (true) {
+
             System.out.println("\n[Campaigns] Visible to you:");
-            List<Campaign> visible = system.listVisibleCampaignsFor(currentUser);
-            for (int i = 0; i < visible.size(); i++) {
-                System.out.println((i + 1) + ") " + visible.get(i).getId() + "  " + visible.get(i));
+            List<Campaign> visible =
+                    this.system.listVisibleCampaignsFor(this.currentUser);
+
+            for (int i = 0; i < visible.size(); ++i) {
+                System.out.println(
+                        (i + 1) + ") " +
+                                visible.get(i).getId() + "  " +
+                                visible.get(i)
+                );
             }
+
             System.out.println("1) Create campaign");
-            System.out.println("2) Manage a campaign (owned or collaborative share)");
+            System.out.println("2) Manage a campaign");
             System.out.println("0) Back");
             System.out.print("> ");
-            String c = in.nextLine().trim();
-            switch (c) {
-                case "1" -> createCampaign();
-                case "2" -> manageCampaign();
-                case "0" -> { return; }
-                default -> System.out.println("Invalid.");
+
+            String choice = in.nextLine().trim();
+
+            if (choice.equals("0")) {
+                return;
+            }
+
+            MenuAction action = campaignActions.get(choice);
+
+            if (action != null) {
+                action.execute(this);
+            } else {
+                System.out.println("Invalid.");
             }
         }
     }
 
-    private void createCampaign() {
+    public void createCampaign() {
         System.out.print("Campaign name: ");
         String name = in.nextLine().trim();
         System.out.print("Visibility (PUBLIC/PRIVATE): ");
@@ -220,7 +247,7 @@ public class GuildQuestApp {
         System.out.println("Created campaign: " + c.getId());
     }
 
-    private void manageCampaign() {
+    public void manageCampaign() {
         System.out.print("Campaign UUID: ");
         UUID id = UUID.fromString(in.nextLine().trim());
         Optional<Campaign> oc = system.getCampaign(id);
@@ -552,5 +579,12 @@ public class GuildQuestApp {
             case REALM_LOCAL -> e.getTitle() + " | LOCAL " + local + " | Realm " + e.getRealm().getName();
             case BOTH -> e.getTitle() + " | WORLD " + world + " | LOCAL " + local + " | Realm " + e.getRealm().getName();
         };
+    }
+
+    private void initCampaignActions() {
+        campaignActions = new HashMap<>();
+
+        campaignActions.put("1", new CreateCampaignAction());
+        campaignActions.put("2", new ManageCampaignAction());
     }
 }
