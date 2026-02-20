@@ -253,6 +253,47 @@ public class GuildQuestApp {
         System.out.println("Created campaign: " + c.getId());
     }
 
+    private void printCampaignMenu(Campaign c) {
+        System.out.println("\nCampaign: " + c.getName() + "  " + c.getId());
+        System.out.println("Visibility: " + c.getVisibility() + "  Archived: " + c.isArchived());
+        System.out.println("1) Rename");
+        System.out.println("2) Toggle visibility");
+        System.out.println("3) Archive");
+        System.out.println("4) List events");
+        System.out.println("5) Add event");
+        System.out.println("6) Edit event");
+        System.out.println("7) Remove event");
+        System.out.println("8) Timeline view");
+        System.out.println("0) Back");
+        System.out.print("> ");
+    }
+
+    private void handleCampaignChoice(Campaign c, String ch, boolean canEdit) {
+
+        if (!canEdit && Set.of("1","2","3","5","6","7").contains(ch)) {
+            System.out.println("No permission to edit.");
+            return;
+        }
+
+        switch (ch) {
+            case "1" -> {
+                System.out.print("New name: ");
+                c.setName(in.nextLine().trim());
+            }
+            case "2" ->
+                    c.setVisibility(c.getVisibility() == VisibilityType.PUBLIC
+                            ? VisibilityType.PRIVATE
+                            : VisibilityType.PUBLIC);
+            case "3" -> c.setArchived(true);
+            case "4" -> listEvents(c);
+            case "5" -> addEvent(c);
+            case "6" -> editEvent(c);
+            case "7" -> removeEvent(c);
+            case "8" -> timelineView(c);
+            default -> System.out.println("Invalid.");
+        }
+    }
+
     public void manageCampaign() {
         System.out.print("Campaign UUID: ");
         UUID id = UUID.fromString(in.nextLine().trim());
@@ -269,41 +310,14 @@ public class GuildQuestApp {
 
         Campaign c = oc.get();
         while (true) {
-            System.out.println("\nCampaign: " + c.getName() + "  " + c.getId());
-            System.out.println("Visibility: " + c.getVisibility() + "  Archived: " + c.isArchived());
-            System.out.println("1) Rename");
-            System.out.println("2) Toggle visibility");
-            System.out.println("3) Archive");
-            System.out.println("4) List events");
-            System.out.println("5) Add event");
-            System.out.println("6) Edit event");
-            System.out.println("7) Remove event");
-            System.out.println("8) Timeline view");
-            System.out.println("0) Back");
-            System.out.print("> ");
+
+            printCampaignMenu(c);
+
             String ch = in.nextLine().trim();
 
             if (ch.equals("0")) return;
 
-            if (!canEdit && Set.of("1","2","3","5","6","7").contains(ch)) {
-                System.out.println("No permission to edit.");
-                continue;
-            }
-
-            switch (ch) {
-                case "1" -> {
-                    System.out.print("New name: ");
-                    c.setName(in.nextLine().trim());
-                }
-                case "2" -> c.setVisibility(c.getVisibility() == VisibilityType.PUBLIC ? VisibilityType.PRIVATE : VisibilityType.PUBLIC);
-                case "3" -> c.setArchived(true);
-                case "4" -> listEvents(c);
-                case "5" -> addEvent(c);
-                case "6" -> editEvent(c);
-                case "7" -> removeEvent(c);
-                case "8" -> timelineView(c);
-                default -> System.out.println("Invalid.");
-            }
+            handleCampaignChoice(c, ch, canEdit);
         }
     }
 
