@@ -48,22 +48,12 @@ public class Campaign {
     // Simple World Clock ranges:
     // day=1440, week=10080, month=43200 (30 days), year=525600 (365 days)
     public List<QuestEvent> timeline(TimePeriodType period, WorldTime anchorStart) {
-        long span;
-        switch (period) {
-            case DAY -> span = 1440L;
-            case WEEK -> span = 10080L;
-            case MONTH -> span = 43200L;
-            case YEAR -> span = 525600L;
-            default -> throw new IllegalArgumentException("Unknown period");
-        }
-
         long startMin = anchorStart.totalMinutes();
-        long endMinExclusive = startMin + span;
+        long endMinExclusive = startMin + period.spanMinutes();  // no switch needed
 
         List<QuestEvent> filtered = new ArrayList<>();
         for (QuestEvent e : events) {
             long evStart = e.getStart().totalMinutes();
-            // include if event starts in [start, end)
             if (evStart >= startMin && evStart < endMinExclusive) filtered.add(e);
         }
         filtered.sort(Comparator.comparing(QuestEvent::getStart));
