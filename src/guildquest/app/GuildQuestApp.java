@@ -3,6 +3,7 @@ package guildquest.app;
 import guildquest.app.menu.MenuAction;
 import guildquest.app.menu.CreateCampaignAction;
 import guildquest.app.menu.ManageCampaignAction;
+import guildquest.app.factory.GameObjectFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -243,7 +244,12 @@ public class GuildQuestApp {
         String name = in.nextLine().trim();
         System.out.print("Visibility (PUBLIC/PRIVATE): ");
         VisibilityType v = VisibilityType.valueOf(in.nextLine().trim());
-        Campaign c = system.createCampaign(currentUser, name, v);
+        Campaign c = GameObjectFactory.createCampaign(
+                system,
+                currentUser,
+                name,
+                v
+        );
         System.out.println("Created campaign: " + c.getId());
     }
 
@@ -323,7 +329,13 @@ public class GuildQuestApp {
         System.out.print("Visibility (PUBLIC/PRIVATE): ");
         VisibilityType v = VisibilityType.valueOf(in.nextLine().trim());
 
-        QuestEvent e = new QuestEvent(title, start, end, realm, v);
+        QuestEvent e = GameObjectFactory.createQuestEvent(
+                title,
+                start,
+                end,
+                realm,
+                v
+        );
 
         // optional: participant + reward
         if (!currentUser.getCharacters().isEmpty()) {
@@ -444,7 +456,13 @@ public class GuildQuestApp {
         int lvl = Integer.parseInt(in.nextLine().trim());
         System.out.print("Inventory capacity: ");
         int cap = Integer.parseInt(in.nextLine().trim());
-        Character ch = currentUser.addCharacter(name, clazz, lvl, cap);
+        Character ch = GameObjectFactory.createCharacter(
+                currentUser,
+                name,
+                clazz,
+                lvl,
+                cap
+        );
         System.out.println("Created: " + ch.getId());
     }
 
@@ -565,7 +583,7 @@ public class GuildQuestApp {
         System.out.print("Description (optional): ");
         String desc = in.nextLine().trim();
         if (desc.isBlank()) desc = null;
-        return new Item(name, r, desc);
+        return GameObjectFactory.createItem(name, r, desc);
     }
 
     private String formatEventForUser(QuestEvent e) {
