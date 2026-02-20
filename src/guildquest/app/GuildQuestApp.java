@@ -281,9 +281,7 @@ public class GuildQuestApp {
                 c.setName(in.nextLine().trim());
             }
             case "2" ->
-                    c.setVisibility(c.getVisibility() == VisibilityType.PUBLIC
-                            ? VisibilityType.PRIVATE
-                            : VisibilityType.PUBLIC);
+                    c.toggleVisibility();
             case "3" -> c.setArchived(true);
             case "4" -> listEvents(c);
             case "5" -> addEvent(c);

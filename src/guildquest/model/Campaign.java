@@ -74,4 +74,10 @@ public class Campaign {
     public String toString() {
         return name + " [" + visibility + "]" + (archived ? " (ARCHIVED)" : "");
     }
+
+    public void toggleVisibility() {
+        this.visibility = (this.visibility == VisibilityType.PUBLIC)
+                ? VisibilityType.PRIVATE
+                : VisibilityType.PUBLIC;
+    }
 }
