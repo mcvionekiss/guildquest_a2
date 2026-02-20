@@ -5,7 +5,7 @@ import guildquest.enums.VisibilityType;
 
 import java.util.*;
 
-public class GuildQuest {
+public class GuildQuest implements ClockObserver{
     private final WorldClock worldClock = new WorldClock();
     private final Map<UUID, User> usersById = new HashMap<>();
     private final Map<String, User> usersByName = new HashMap<>();
@@ -14,6 +14,23 @@ public class GuildQuest {
     private final Map<UUID, UUID> campaignOwnerByCampaignId = new HashMap<>(); // campaignId -> ownerUserId
     private final Map<UUID, QuestEvent> eventsById = new HashMap<>();
     private final Map<UUID, UUID> eventOwnerByEventId = new HashMap<>();
+
+    public GuildQuest() {
+        worldClock.addObserver(this);                    // NEW - register self
+    }
+
+    @Override
+    public void onTimeAdvanced(WorldTime newTime) {      // NEW
+        for (Campaign c : campaignsById.values()) {
+            for (QuestEvent e : c.getEvents()) {
+                if (e.getStart().compareTo(newTime) <= 0
+                        && (e.getEnd() == null || e.getEnd().compareTo(newTime) > 0)) {
+                    System.out.println("[CLOCK] Event now active: " + e.getTitle()
+                            + " (started " + e.getStart() + ")");
+                }
+            }
+        }
+    }
 
     public WorldClock getWorldClock() { return worldClock; }
 
